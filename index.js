@@ -9,6 +9,7 @@ function getSubstring(str, start, end) {
 }
 
 function renderPoem(data, imgs) {
+    document.body.style.backgroundImage = "url(" + imgs["1"] + ")";
     // assume an object called data exists with
     // { title, by, poem, glossary }
     // where poem is an array of strings
@@ -22,9 +23,10 @@ function renderPoem(data, imgs) {
     let title = poemContainer.querySelector("#title")
     let by = poemContainer.querySelector("#by")
     title.innerHTML = data.title;
-    by.innerHTML = data.by;
-
-    [title, by].forEach((el) => {
+    by.innerHTML = 'BY '+ "<a href=" + data.by_url +">" + data.by + "</a>"
+    console.log(by)
+    let elems = [title, by];
+    elems.forEach((el) => {
         el.onmouseover = function() {
             document.body.style.backgroundImage = "url(" + imgs["1"] + ")";
         }

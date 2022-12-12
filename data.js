@@ -1,6 +1,7 @@
 const data = {
     "title": "\u201cBright star, would I were stedfast as thou art\u201d",
-    "by": "BY JOHN KEATS",
+    "by": "JOHN KEATS",
+    "by_url": "https://www.poetryfoundation.org/poets/john-keats",
     "poem": [
         "Bright star, would I were stedfast as thou art\u2014",
         "         Not in lone splendour hung aloft the night",

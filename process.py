@@ -10,9 +10,11 @@ def process(file):
         # Format of text is 
         # title
         # BY <author>
+        # author_url
         # <poem>
         # Glossary with line references:
-        title, by, *rest = text
+        title, by, by_url, *rest = text
+        by = by.replace('BY ', '').strip()
         heading_idx = rest.index('Glossary with line references:')
         poem = rest[:heading_idx]
         glossary = rest[heading_idx+1:]
@@ -50,6 +52,7 @@ def process(file):
         data = {
             'title': title,
             'by': by,
+            'by_url': by_url,
             'poem': poem,
             'glossary': gloss_dict,
         }
