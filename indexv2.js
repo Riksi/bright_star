@@ -181,7 +181,7 @@ function renderPoem(data, imgs) {
     function pauseAnimation() {
         clearTimeout(timeOut);
         // play emoji
-        playButton.innerHTML = "▶️";
+        playButton.innerHTML = '<i class="fa fa-play"></i>';
         playButton.onclick = animate;
     }
 
@@ -201,7 +201,7 @@ function renderPoem(data, imgs) {
                 //     span.style.display = "none";
                 // }
             // });
-            playButton.innerHTML = "⏸️";
+            playButton.innerHTML = '<i class="fa fa-pause"></i>';
             removeGlossEvents();
             playButton.onclick = pauseAnimation;
 
@@ -239,7 +239,7 @@ function renderPoem(data, imgs) {
             timeOut = setTimeout(() => {
                 if (mouseoutEvent !== null) mouseoutEvent();
                 addGlossEvents();
-                playButton.innerHTML = "▶️";
+                playButton.innerHTML = "<i class='fa fa-play'></i>";
                 playButton.onclick = animate;
             }, timeOutTime);
             
