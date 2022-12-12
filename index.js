@@ -28,7 +28,10 @@ function renderPoem(data, imgs) {
     let elems = [title, by];
     elems.forEach((el) => {
         el.onmouseover = function() {
-            document.body.style.backgroundImage = "url(" + imgs["1"] + ")";
+            let backgroundImgStyle = "url(" + imgs["1"] + ")";
+            if(document.body.style.backgroundImage !== backgroundImgStyle){
+                document.body.style.backgroundImage = backgroundImgStyle;
+            }
         }
     })
 
@@ -75,7 +78,10 @@ function renderPoem(data, imgs) {
                 span.onmouseover = function() {
                     span.classList.add("highlight");
                     glossContainer.innerHTML = definition;
-                    document.body.style.backgroundImage = "url(" + associatedImg + ")";
+                    let backgroundImgStyle = "url(" + associatedImg + ")";
+                    if(document.body.style.backgroundImage !== backgroundImgStyle){
+                        document.body.style.backgroundImage = backgroundImgStyle;
+                    }
                     // move glossContainer to the right of the span
                     let rect = lineContainer.getBoundingClientRect();
                     let spanRect = span.getBoundingClientRect();
