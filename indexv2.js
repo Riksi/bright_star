@@ -152,6 +152,8 @@ function renderPoem(data, imgs) {
     let playButton = document.getElementById("play");
     playButton.onclick = animate;
 
+    addGlossEvents();
+
     function addGlossEvents() {
         for(let elemIdx in mouseoverEvents) {
             let elem = document.getElementById(elemIdx);
@@ -261,6 +263,48 @@ function renderPoem(data, imgs) {
 
 }
 
+function IsImageOk(img) {
+    // During the onload event, IE correctly identifies any images that
+    // weren’t downloaded as not complete. Others should too. Gecko-based
+    // browsers act like NS4 in that they report this incorrectly.
+    if (!img.complete) {
+        return false;
+    }
+
+    // However, they do have two very useful properties: naturalWidth and
+    // naturalHeight. These give the true size of the image. If it failed
+    // to load, either of these should be zero.
+    if (img.naturalWidth === 0) {
+        return false;
+    }
+
+    // No other way of checking: assume it’s ok.
+    return true;
+}
+
 window.onload = function() {
+    // first create an hidden image element for each image
+    // then wait until all images are loaded
+    for(let key in imgs) {
+        let img = document.createElement("img");
+        img.className='placeholder'
+        img.src = imgs[key];
+        img.style.display = "none";
+        document.body.appendChild(img);
+    }
+
+    let images = document.querySelectorAll(".placeholder");
+    images = Array.from(images);
+    let allLoaded = false;
+    while(!allLoaded){
+        for(let i=0; i<images.length; i++) {
+            if(!IsImageOk(images[i])) {
+                break;
+            }
+        }
+        allLoaded = true;
+    }
+    console.log("all images loaded");
+
     renderPoem(data, imgs);
 }
