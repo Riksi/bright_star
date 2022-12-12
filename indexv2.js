@@ -177,49 +177,53 @@ function renderPoem(data, imgs) {
     let currentSpanIdx = 0;
     let timeOut;
     let timeOutTime = 1000;
+    let resume = false;
 
     function pauseAnimation() {
         clearTimeout(timeOut);
         // play emoji
         playButton.innerHTML = '<i class="fa fa-play"></i>';
         playButton.onclick = animate;
+        resume = true;
     }
 
     function animate() {
+         
+        // if paused and previous span had mouseout event, call it
+        if(resume){
+            if(currentSpanIdx > 0) {
+                window.scrollBy(0, 5, "smooth");
+                let prevSpan = spans[currentSpanIdx - 1];
+                if(prevSpan.classList.contains("tooltip")) {
+                    mouseoutEvents[prevSpan.id]();
+                }
+                playButton.innerHTML = '<i class="fa fa-pause"></i>';
+                playButton.onclick = pauseAnimation;
+                resume = false;
+            } else {
+                let prevSpan = spans[spans.length - 1];
+                if(prevSpan.classList.contains("tooltip")) {
+                    mouseoutEvents[prevSpan.id]();
+                }
+                addGlossEvents();
+                playButton.innerHTML = "<i class='fa fa-play'></i>";
+                playButton.onclick = animate;
+                resume = false;
+                return;
+            }
+            
+        }
         
         if(currentSpanIdx === 0) {
-            // let by = document.querySelector("#by");
-            // by.style.display = "none";
-            // scroll to top
             window.scrollTo(0, 0);
             
-            // spans.forEach(span => {
-            //     if (span.parentElement.style.display !== "none") {
-            //         span.parentElement.style.display = "none";
-            //     }
-                // if (span.style.display !== "none") {
-                //     span.style.display = "none";
-                // }
-            // });
             playButton.innerHTML = '<i class="fa fa-pause"></i>';
             removeGlossEvents();
             playButton.onclick = pauseAnimation;
 
-            // currentSpanIdx++;
-            // timeOut = setTimeout(() => {
-            //     by.style.display = "block";
-            //     window.scrollBy(0, 5);
-            //     animate();
-            // }, timeOutTime);
-
-            // return;
-        }
+        } 
 
         let currentSpan = spans[currentSpanIdx];
-        // if (currentSpan.parentElement.style.display === "none") {
-        //     currentSpan.parentElement.style.display = "block";
-        // }
-        // currentSpan.style.display = "inline";
         
 
         
@@ -232,10 +236,9 @@ function renderPoem(data, imgs) {
         }
         if(mouseoverEvent !== null) mouseoverEvent();
         
-
+        scrolled = false;
         if(currentSpanIdx === spans.length - 1) {
             currentSpanIdx = 0;
-            playButton.onclick = null;
             timeOut = setTimeout(() => {
                 if (mouseoutEvent !== null) mouseoutEvent();
                 addGlossEvents();
@@ -245,13 +248,10 @@ function renderPoem(data, imgs) {
             
         } else {
             currentSpanIdx++;
-
-            if(timeOut !== undefined) clearTimeout(timeOut);
             
             timeOut = setTimeout(() => {
                 // gradually scroll down
                 window.scrollBy(0, 5, "smooth");
-
                 if (mouseoutEvent !== null) mouseoutEvent();
                 animate();
             }, timeOutTime);
