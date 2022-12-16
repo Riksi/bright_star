@@ -16,7 +16,7 @@ const data = {
         "To feel for ever its soft fall and swell,",
         "         Awake for ever in a sweet unrest,",
         "Still, still to hear her tender-taken breath,",
-        "And so live ever\u2014or else swoon to death."
+        "And so live ever\u2014or else swoon to death.",
     ],
     "glossary": {
         "1": [

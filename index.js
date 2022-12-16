@@ -1,3 +1,9 @@
+// We are going to animate the poem
+// Making one span at a time appear
+// triggering the onmouseover event, 
+// then the onmouseout event
+// render as normal but let display = none
+
 function getSubstring(str, start, end) {
     let substr;
     if(end === undefined) {
@@ -9,7 +15,11 @@ function getSubstring(str, start, end) {
 }
 
 function renderPoem(data, imgs) {
+    let selectedImg = "1"
+    handleMatchChange(window.matchMedia("(max-width: 600px)"));
     document.body.style.backgroundImage = "url(" + imgs["1"] + ")";
+    
+
     // assume an object called data exists with
     // { title, by, poem, glossary }
     // where poem is an array of strings
@@ -24,27 +34,33 @@ function renderPoem(data, imgs) {
     let by = poemContainer.querySelector("#by")
     title.innerHTML = data.title;
     by.innerHTML = 'BY '+ "<a href=" + data.by_url +">" + data.by + "</a>"
-    console.log(by)
     let elems = [title, by];
+    let mouseoverEvents = {};
+    let mouseoutEvents = {};
+
     elems.forEach((el) => {
-        el.onmouseover = function() {
+        mouseoverEvents[el.id] = function() {
             let backgroundImgStyle = "url(" + imgs["1"] + ")";
             if(document.body.style.backgroundImage !== backgroundImgStyle){
+                selectedImg = "1";
+                handleMatchChange(window.matchMedia("(max-width: 600px)"));
                 document.body.style.backgroundImage = backgroundImgStyle;
+                
             }
         }
     })
 
     poemTextContainer.innerHTML = "";
+    let glossContainer = document.createElement("div");
+    glossContainer.classList.add("gloss");
+    document.body.appendChild(glossContainer);
+    glossContainer.style.display = "none";
+    glossContainer.style.position = "fixed";
     data.poem.forEach((line, lineId) => {
         let i = lineId + 1;
         let lineContainer = document.createElement("div");
         lineContainer.classList.add("line");
-        let glossContainer = document.createElement("div");
-        glossContainer.classList.add("gloss");
-        document.body.appendChild(glossContainer);
-        glossContainer.style.display = "none";
-        glossContainer.style.position = "fixed";
+        
         // let lineOuter = document.createElement("div");
         // lineOuter.classList.add("line-outer");
         // poemTextContainer.appendChild(lineOuter);
@@ -70,29 +86,39 @@ function renderPoem(data, imgs) {
                     j2Str = (j + 1) + "";
                     if(j2Str in imgs) {
                         associatedImg = imgs[j2Str];
-                        console.log(j, j2Str, associatedImg);
                         break;
                     }
                 }
                 
-                span.onmouseover = function() {
-                    span.classList.add("highlight");
+                mouseoverEvents[span.id] = function() {
+                    if(!span.classList.contains("highlight")) span.classList.add("highlight");
                     glossContainer.innerHTML = definition;
                     let backgroundImgStyle = "url(" + associatedImg + ")";
                     if(document.body.style.backgroundImage !== backgroundImgStyle){
+                        selectedImg = j2Str;
+                        handleMatchChange(window.matchMedia("(max-width: 600px)"));
                         document.body.style.backgroundImage = backgroundImgStyle;
+                        
                     }
                     // move glossContainer to the right of the span
                     let rect = lineContainer.getBoundingClientRect();
                     let spanRect = span.getBoundingClientRect();
-                    glossContainer.style.left = rect.right + "px";
-                    glossContainer.style.top = spanRect.top + "px";
+                    if(!window.matchMedia("(max-width: 600px)").matches) {
+                        glossContainer.style.left = rect.right + "px";
+                        glossContainer.style.top = spanRect.top + "px";
+                    } else {
+                        // make it directly below the span
+                        glossContainer.style.left = spanRect.left + "px";
+                        glossContainer.style.top = spanRect.bottom + "px";
+                        
+                    }
+                    
                     glossContainer.style.display = "block";
                     glossContainer.style.maxWidth = lineContainer.offsetWidth - spanRect.left + "px";
 
                     
                 }
-                span.onmouseout = function() {
+                mouseoutEvents[span.id] = function() {
                     span.classList.remove("highlight");
                     glossContainer.innerHTML = "";
                     glossContainer.style.display = "none";
@@ -124,10 +150,211 @@ function renderPoem(data, imgs) {
         poemTextContainer.appendChild(lineContainer);
 
     });
+
     
+    
+    // hide all spans
+    // redefine onmouseover and onmouseout as separate functions
+    // they will not be active when animation is running
+    // but the functions can be called from the animation
+    // make an object that maps the span id to the onmouseover and onmouseout functions
+
+
+    // At the start no events are active
+    // After play is done, all events are active
+    // If play is clicked again, all events are removed
+    
+    // Assume a button with id="play" exists
+
+    let spans = document.querySelectorAll(".line span");
+    let playButton = document.getElementById("play");
+    playButton.onclick = animate;
+
+    addGlossEvents();
+
+    function addGlossEvents() {
+        for(let elemIdx in mouseoverEvents) {
+            let elem = document.getElementById(elemIdx);
+            elem.onmouseover = mouseoverEvents[elemIdx];
+            elem.onmouseout = mouseoutEvents[elemIdx];
+            if(elem.tagName==="SPAN") {
+                elem.classList.add("dotted");
+            }
+        }
+    }
+
+    function removeGlossEvents() {
+        for(let elemIdx in mouseoverEvents) {
+            let elem = document.getElementById(elemIdx);
+            elem.onmouseover = null;
+            elem.onmouseout = null;
+            if(elem.tagName==="SPAN") {
+                elem.classList.remove("dotted");
+            }
+        }
+    }
+
+    let currentSpanIdx = 0;
+    let timeOut;
+    let timeOutTime = 1000;
+    let resume = false;
+
+    function pauseAnimation() {
+        clearTimeout(timeOut);
+        // play emoji
+        playButton.innerHTML = '<i class="fa fa-play"></i>';
+        playButton.onclick = animate;
+        resume = true;
+    }
+
+    function animate() {
+        let prevToolTipSpan = null;
+        // find earliest tooltip span before currentSpanIdx
+        let lastIdx = currentSpanIdx > 0 ? currentSpanIdx - 1 : spans.length - 1;
+        for(let i = lastIdx; i >= 0; i--) {
+            if(spans[i].classList.contains("tooltip")) {
+                prevToolTipSpan = spans[i];
+                break;
+            }
+        }
+
+        let currentSpan = spans[currentSpanIdx];
+        // if paused and previous span had mouseout event, call it
+        if(resume){
+            if(currentSpanIdx > 0) {
+                window.scrollBy(0, 5, "smooth");
+                // if(prevSpan.classList.contains("tooltip")) {
+                //     mouseoutEvents[prevSpan.id]();
+                // }
+                playButton.innerHTML = '<i class="fa fa-pause"></i>';
+                playButton.onclick = pauseAnimation;
+                resume = false;
+            } else {
+                if(prevToolTipSpan !== null) {
+                    mouseoutEvents[prevToolTipSpan.id]();
+                }
+                addGlossEvents();
+                playButton.innerHTML = "<i class='fa fa-play'></i>";
+                playButton.onclick = animate;
+                resume = false;
+                return;
+            }
+            
+        }
+        
+        if((currentSpanIdx > 0) && currentSpan.classList.contains("tooltip")
+        ) {
+            mouseoutEvents[prevToolTipSpan.id]();
+        }
+        
+        if(currentSpanIdx === 0) {
+            window.scrollTo(0, 0);
+            
+            playButton.innerHTML = '<i class="fa fa-pause"></i>';
+            removeGlossEvents();
+            playButton.onclick = pauseAnimation;
+
+        } 
+
+        
+        
+
+        
+        let mouseoverEvent = null;
+        let mouseoutEvent = null;
+        if(currentSpan.classList.contains("tooltip")) {
+            currentSpan.classList.add("highlight");
+            mouseoverEvent = mouseoverEvents[currentSpan.id];
+            mouseoutEvent = mouseoutEvents[currentSpan.id];
+        }
+        if(mouseoverEvent !== null) mouseoverEvent();
+        
+        scrolled = false;
+        if(currentSpanIdx === spans.length - 1) {
+            currentSpanIdx = 0;
+            timeOut = setTimeout(() => {
+                if (mouseoutEvent !== null) mouseoutEvent();
+                addGlossEvents();
+                playButton.innerHTML = "<i class='fa fa-play'></i>";
+                playButton.onclick = animate;
+            }, timeOutTime);
+            
+        } else {
+            currentSpanIdx++;
+            
+            timeOut = setTimeout(() => {
+                // gradually scroll down
+                window.scrollBy(0, 5, "smooth");
+                // if (mouseoutEvent !== null) mouseoutEvent();
+                animate();
+            }, timeOutTime);
+        }
+
+    }
+
+    
+    const query = window.matchMedia("(max-width: 600px)");
+    function handleMatchChange(event) {
+        console.log(background[selectedImg]);
+        if (event.matches) {
+            document.body.style.backgroundPosition = background[selectedImg];
+        } else {
+            document.body.style.backgroundPosition = "0 0";
+        }
+    }
+
+    query.addListener(handleMatchChange);
+
+    handleMatchChange(query);
 
 }
 
+function IsImageOk(img) {
+    // During the onload event, IE correctly identifies any images that
+    // weren’t downloaded as not complete. Others should too. Gecko-based
+    // browsers act like NS4 in that they report this incorrectly.
+    if (!img.complete) {
+        return false;
+    }
+
+    // However, they do have two very useful properties: naturalWidth and
+    // naturalHeight. These give the true size of the image. If it failed
+    // to load, either of these should be zero.
+    if (img.naturalWidth === 0) {
+        return false;
+    }
+
+    
+
+    // No other way of checking: assume it’s ok.
+    return true;
+}
+
 window.onload = function() {
+    // first create an hidden image element for each image
+    // then wait until all images are loaded
+    for(let key in imgs) {
+        let img = document.createElement("img");
+        img.className='placeholder'
+        img.src = imgs[key];
+        img.style.display = "none";
+        document.body.appendChild(img);
+    }
+
+    let images = document.querySelectorAll(".placeholder");
+    images = Array.from(images);
+    let allLoaded = false;
+    while(!allLoaded){
+        for(let i=0; i<images.length; i++) {
+            if(!IsImageOk(images[i])) {
+                break;
+            }
+        }
+        allLoaded = true;
+    }
+    console.log("all images loaded");
+
+
+
     renderPoem(data, imgs);
 }

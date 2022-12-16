@@ -8,7 +8,7 @@
     <!-- include data.js and index.js -->
     <script src = 'data.js' type = 'text/javascript'></script>
     <script src = 'img.js' type = 'text/javascript'></script>
-    <script src = 'indexv2.js' type = 'text/javascript'></script>
+    <script src = 'index.js' type = 'text/javascript'></script>
     <style>
         
         body {
@@ -51,7 +51,7 @@
         #container{
             width: 80%;
             margin: auto;
-            margin-top: 250px;
+            margin-top: 180px;
         }
         .line {
             float: left;
@@ -86,6 +86,9 @@
             line-height: 1.25em;
             margin-top: 800px;
             padding: 1%;
+        }
+        #about li:last-of-type{
+            margin-bottom: 50px;
         }
         #about a, #by a{
             color: white;
@@ -135,7 +138,7 @@
             }
 
             #poem, .gloss, #about {
-            font-size: 1.4em;
+            font-size: 1em;
             line-height: 1.8em;
             }
 
@@ -156,9 +159,11 @@
 
         </div>
 
-        <div id="about">
-            Annotations by <a href="https://openai.com/blog/gpt-3-apps/">GPT-3</a> (with some minor edits to fix errors), images by <a href="https://openai.com/dall-e-2/">DALL·E-2</a> from prompts inspired by the poem. Github repo <a href="https://www.github.com/riksi/brightstar">here</a>.
-        </div>
+        <ul id="about">
+            <li>Annotations by <a href="https://openai.com/blog/gpt-3-apps/">GPT-3</a> (with some minor edits to fix errors)</li>
+            <li>Images by <a href="https://openai.com/dall-e-2/">DALL·E-2</li> from prompts inspired by the poem.</li> 
+            <li>Github repo <a href="https://www.github.com/riksi/brightstar">here</a>.</li>
+        </ul>
 
     </div>
 
