@@ -7,3 +7,14 @@ const imgs = {
     10: "fair_love_v3.jpeg",
     12: "fair_love_awake_v2.jpeg",
 }
+
+// "50% 50%" for each
+const background = {
+    1: "75% 50%",
+    4: "90% 50%",
+    5: "40% 50%",
+    6: "75% 50%",
+    7: "75% 50%",
+    10: "75% 50%",
+    12: "75% 50%",
+}

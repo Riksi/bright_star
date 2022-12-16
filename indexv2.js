@@ -15,7 +15,11 @@ function getSubstring(str, start, end) {
 }
 
 function renderPoem(data, imgs) {
+    let selectedImg = "1"
+    handleMatchChange(window.matchMedia("(max-width: 600px)"));
     document.body.style.backgroundImage = "url(" + imgs["1"] + ")";
+    
+
     // assume an object called data exists with
     // { title, by, poem, glossary }
     // where poem is an array of strings
@@ -38,7 +42,10 @@ function renderPoem(data, imgs) {
         mouseoverEvents[el.id] = function() {
             let backgroundImgStyle = "url(" + imgs["1"] + ")";
             if(document.body.style.backgroundImage !== backgroundImgStyle){
+                selectedImg = "1";
+                handleMatchChange(window.matchMedia("(max-width: 600px)"));
                 document.body.style.backgroundImage = backgroundImgStyle;
+                
             }
         }
     })
@@ -88,13 +95,24 @@ function renderPoem(data, imgs) {
                     glossContainer.innerHTML = definition;
                     let backgroundImgStyle = "url(" + associatedImg + ")";
                     if(document.body.style.backgroundImage !== backgroundImgStyle){
+                        selectedImg = j2Str;
+                        handleMatchChange(window.matchMedia("(max-width: 600px)"));
                         document.body.style.backgroundImage = backgroundImgStyle;
+                        
                     }
                     // move glossContainer to the right of the span
                     let rect = lineContainer.getBoundingClientRect();
                     let spanRect = span.getBoundingClientRect();
-                    glossContainer.style.left = rect.right + "px";
-                    glossContainer.style.top = spanRect.top + "px";
+                    if(!window.matchMedia("(max-width: 600px)").matches) {
+                        glossContainer.style.left = rect.right + "px";
+                        glossContainer.style.top = spanRect.top + "px";
+                    } else {
+                        // make it directly below the span
+                        glossContainer.style.left = spanRect.left + "px";
+                        glossContainer.style.top = spanRect.bottom + "px";
+                        
+                    }
+                    
                     glossContainer.style.display = "block";
                     glossContainer.style.maxWidth = lineContainer.offsetWidth - spanRect.left + "px";
 
@@ -261,6 +279,21 @@ function renderPoem(data, imgs) {
 
     }
 
+    
+    const query = window.matchMedia("(max-width: 600px)");
+    function handleMatchChange(event) {
+        console.log(background[selectedImg]);
+        if (event.matches) {
+            document.body.style.backgroundPosition = background[selectedImg];
+        } else {
+            document.body.style.backgroundPosition = "0 0";
+        }
+    }
+
+    query.addListener(handleMatchChange);
+
+    handleMatchChange(query);
+
 }
 
 function IsImageOk(img) {
@@ -277,6 +310,8 @@ function IsImageOk(img) {
     if (img.naturalWidth === 0) {
         return false;
     }
+
+    
 
     // No other way of checking: assume it’s ok.
     return true;
@@ -305,6 +340,8 @@ window.onload = function() {
         allLoaded = true;
     }
     console.log("all images loaded");
+
+
 
     renderPoem(data, imgs);
 }

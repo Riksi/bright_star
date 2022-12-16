@@ -1,1 +1,1 @@
-See it in action [here](https://riksi.github.io/brightstar/) (best viewed in full screen mode on a laptop or desktop, might look ok on a tablet but not on a phone).
+See it in action [here](https://riksi.github.io/brightstar/) <s>(best viewed in full screen mode on a laptop or desktop, might look ok on a tablet but not on a phone)</s>. Now works on mobile too!
